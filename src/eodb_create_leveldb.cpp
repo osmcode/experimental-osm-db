@@ -368,8 +368,6 @@ int main(int argc, char* argv[]) {
     delete db_n2r;
     delete db_n2w;
 
-    google::protobuf::ShutdownProtobufLibrary();
-
     return return_code::okay;
 }
 

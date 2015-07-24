@@ -146,8 +146,6 @@ int main(int argc, char* argv[]) {
         reader.close();
     }
 
-    google::protobuf::ShutdownProtobufLibrary();
-
     return return_code::okay;
 }
 

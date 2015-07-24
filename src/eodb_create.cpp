@@ -321,8 +321,6 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    google::protobuf::ShutdownProtobufLibrary();
-
     return return_code::okay;
 }
 

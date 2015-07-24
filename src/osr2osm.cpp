@@ -164,8 +164,6 @@ int main(int argc, char* argv[]) {
 
     writer.close();
 
-    google::protobuf::ShutdownProtobufLibrary();
-
     return return_code::okay;
 }
 
