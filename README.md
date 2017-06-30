@@ -15,6 +15,8 @@ documented and will probably not work for you. :-)
 You'll need Libosmium (http://osmcode.org/libosmium) and its dependencies
 installed first.
 
+These programs will only for on 64bit systems.
+
 For some programs you need [leveldb](https://github.com/google/leveldb). On
 Debian/Ubuntu that's package `libleveldb-dev`.
 
