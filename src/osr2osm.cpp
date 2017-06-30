@@ -54,7 +54,7 @@ public:
         try {
             namespace po = boost::program_options;
 
-            po::options_description cmdline("Allowed options");
+            po::options_description cmdline{"Allowed options"};
             cmdline.add_options()
                 ("help,h", "Print this help message")
                 ("version", "Show version")
@@ -64,7 +64,7 @@ public:
                 ("output-format,f", po::value<std::string>()->default_value(""), "Format of output file")
             ;
 
-            po::options_description hidden("Hidden options");
+            po::options_description hidden{"Hidden options"};
             hidden.add_options()
                 ("input-filenames", po::value<std::vector<std::string>>(), "Input files")
             ;
@@ -84,16 +84,16 @@ public:
                 std::cout << "Usage: osr2osm [OPTIONS] DATA-FILE...\n";
                 std::cout << "Read OSM data from raw data files.\n\n";
                 std::cout << cmdline << "\n";
-                exit(return_code::okay);
+                std::exit(return_code::okay);
             }
 
             if (vm.count("output") == 0 && vm.count("output-format") == 0) {
                 std::cerr << "You have to set the output file name with --output,-o or the output format with --output-format,-f\n";
-                exit(return_code::fatal);
+                std::exit(return_code::fatal);
             }
-        } catch (boost::program_options::error& e) {
-            std::cerr << "Error parsing command line: " << e.what() << std::endl;
-            exit(return_code::fatal);
+        } catch (const boost::program_options::error& e) {
+            std::cerr << "Error parsing command line: " << e.what() << '\n';
+            std::exit(return_code::fatal);
         }
     }
 
@@ -140,25 +140,25 @@ int main(int argc, char* argv[]) {
     osmium::io::Header header;
     header.set("generator", options.generator());
 
-    osmium::io::Writer writer(
+    osmium::io::Writer writer{
         options.output_filename(),
         header,
         options.overwrite() ?
             osmium::io::overwrite::allow :
             osmium::io::overwrite::no
-    );
+    };
 
     try {
         for (const auto& filename : options.input_filenames()) {
-            MappedFile mf { filename };
+            MappedFile mf{filename};
 
-            osmium::memory::Buffer buffer { mf.data(), mf.size() };
+            osmium::memory::Buffer buffer{mf.data(), mf.size()};
             writer(std::move(buffer));
 
             mf.close();
         }
-    } catch (std::system_error& e) {
-        std::cerr << e.what() << "\n";
+    } catch (const std::system_error& e) {
+        std::cerr << e.what() << '\n';
         return return_code::fatal;
     }
 

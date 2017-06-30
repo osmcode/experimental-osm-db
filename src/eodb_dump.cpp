@@ -48,7 +48,7 @@ public:
         try {
             namespace po = boost::program_options;
 
-            po::options_description desc("Allowed options");
+            po::options_description desc{"Allowed options"};
             desc.add_options()
                 ("help,h", "Print this help message")
                 ("version", "Show version")
@@ -68,31 +68,31 @@ public:
                 std::cout << desc << "\n";
                 std::cout << "Indexes: n(odes), w(ays), r(elations), l(locations)\n";
                 std::cout << "Maps: n(ode)2w(ay), n(ode)2r(elation), w(ay)2r(elation), r(elation)2r(elation)\n";
-                exit(return_code::okay);
+                std::exit(return_code::okay);
             }
 
             if (!!vm.count("index") == !!vm.count("map")) {
                 std::cerr << "Please use exactly one of the options --index,-i or --map,-m.\n";
-                exit(return_code::fatal);
+                std::exit(return_code::fatal);
             }
 
             if (vm.count("index")) {
                 if (index() != "nodes" && index() != "ways" && index() != "relations" && index() != "locations") {
                     std::cerr << "Index given with --index,-i must be one of: nodes, ways, relations, locations\n";
-                    exit(return_code::fatal);
+                    std::exit(return_code::fatal);
                 }
             }
 
             if (vm.count("map")) {
                 if (map() != "node2way" && map() != "node2relation" && map() != "way2relation" && map() != "relation2relation") {
                     std::cerr << "Map given with --map,-m must be one of: node2way, node2relation, way2relation, relation2relation\n";
-                    exit(return_code::fatal);
+                    std::exit(return_code::fatal);
                 }
             }
 
-        } catch (boost::program_options::error& e) {
-            std::cerr << "Error parsing command line: " << e.what() << std::endl;
-            exit(return_code::fatal);
+        } catch (const boost::program_options::error& e) {
+            std::cerr << "Error parsing command line: " << e.what() << '\n';
+            std::exit(return_code::fatal);
         }
     }
 
@@ -157,7 +157,7 @@ void dump_sparse_index(int fd) {
 
 int dump_index(const std::string& database, const std::string& index_name) {
     bool dense = false;
-    std::string filename = database + "/" + index_name + ".sparse.idx";
+    std::string filename{database + "/" + index_name + ".sparse.idx"};
     int fd = ::open(filename.c_str(), O_RDWR);
 
     if (fd == -1) {
@@ -188,15 +188,15 @@ int dump_index(const std::string& database, const std::string& index_name) {
 }
 
 int dump_map(const std::string& database, const std::string& map_name) {
-    std::string filename = database + "/" + map_name + ".map";
-    int fd = ::open(filename.c_str(), O_RDWR);
+    const std::string filename{database + "/" + map_name + ".map"};
+    const int fd = ::open(filename.c_str(), O_RDWR);
 
     if (fd == -1) {
         std::cerr << "Can't open " << map_name << " map file\n";
     }
 
     typedef typename osmium::index::multimap::SparseFileArray<osmium::unsigned_object_id_type, osmium::unsigned_object_id_type> map_type;
-    map_type map { fd };
+    map_type map{fd};
 
     for (auto& element : map) {
         if (element.first != 0) {

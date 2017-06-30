@@ -31,9 +31,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class MappedFile {
 
-    int m_fd { -1 };
-    size_t m_size { 0 };
-    void* m_ptr { nullptr };
+    int m_fd = -1;
+    std::size_t m_size = 0;
+    void* m_ptr = nullptr;
     std::string m_filename;
 
 public:
@@ -49,7 +49,7 @@ public:
         return ucp(m_ptr);
     }
 
-    size_t size() const {
+    std::size_t size() const {
         return m_size;
     }
 

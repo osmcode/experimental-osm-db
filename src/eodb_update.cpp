@@ -98,14 +98,14 @@ public:
         try {
             namespace po = boost::program_options;
 
-            po::options_description cmdline("Allowed options");
+            po::options_description cmdline{"Allowed options"};
             cmdline.add_options()
                 ("help,h", "Print this help message")
                 ("version", "Show version")
                 ("database,d", po::value<std::string>()->default_value(DEFAULT_EODB_NAME), "Database directory")
             ;
 
-            po::options_description hidden("Hidden options");
+            po::options_description hidden{"Hidden options"};
             hidden.add_options()
                 ("input-filenames", po::value<std::vector<std::string>>(), "Input files")
             ;
@@ -129,12 +129,12 @@ public:
                 for (const auto& index_type : index_types) {
                     std::cout << "  " << index_type << "\n";
                 }
-                exit(return_code::okay);
+                std::exit(return_code::okay);
             }
 
-        } catch (boost::program_options::error& e) {
-            std::cerr << "Error parsing command line: " << e.what() << std::endl;
-            exit(return_code::fatal);
+        } catch (const boost::program_options::error& e) {
+            std::cerr << "Error parsing command line: " << e.what() << '\n';
+            std::exit(return_code::fatal);
         }
     }
 
@@ -146,23 +146,23 @@ int main(int argc, char* argv[]) {
     Options options;
     options.parse(argc, argv);
 
-    int data_fd = ::open(options.data_file_name().c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    const int data_fd = ::open(options.data_file_name().c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (data_fd < 0) {
-        std::cerr << "Can't open data file '" << options.data_file_name() << "': " << strerror(errno) << "\n";
-        exit(return_code::fatal);
+        std::cerr << "Can't open data file '" << options.data_file_name() << "': " << std::strerror(errno) << "\n";
+        std::exit(return_code::fatal);
     }
 
     bool dense = true; // only works for dense currently
-    std::string index_type = (dense ? "dense_file_array" : "sparse_file_array");
+    std::string index_type{(dense ? "dense_file_array" : "sparse_file_array")};
 
     const auto& map_factory = osmium::index::MapFactory<osmium::unsigned_object_id_type, size_t>::instance();
     std::unique_ptr<offset_index_type> node_index     = map_factory.create_map(index_type + "," + index_name(options.database(), "nodes", dense));
     std::unique_ptr<offset_index_type> way_index      = map_factory.create_map(index_type + "," + index_name(options.database(), "ways", dense));
     std::unique_ptr<offset_index_type> relation_index = map_factory.create_map(index_type + "," + index_name(options.database(), "relations", dense));
-    UpdatableDiskStore disk_store_handler(data_fd, *node_index, *way_index, *relation_index);
+    UpdatableDiskStore disk_store_handler{data_fd, *node_index, *way_index, *relation_index};
 
     for (const auto& fn : options.input_filenames()) {
-        osmium::io::Reader reader(fn);
+        osmium::io::Reader reader{fn};
 
         while (osmium::memory::Buffer buffer = reader.read()) {
             disk_store_handler(buffer);

@@ -100,8 +100,8 @@ typedef osmium::index::map::Map<osmium::unsigned_object_id_type, osmium::Locatio
 
 class Options : public OptionsBase {
 
-    std::string m_index_type { "sparse_mem_array" };
-    bool m_use_dense_index { false };
+    std::string m_index_type{"sparse_mem_array"};
+    bool m_use_dense_index{false};
 
 public:
 
@@ -120,7 +120,7 @@ public:
         try {
             namespace po = boost::program_options;
 
-            po::options_description cmdline("Allowed options");
+            po::options_description cmdline{"Allowed options"};
             cmdline.add_options()
                 ("help,h", "Print this help message")
                 ("version", "Show version")
@@ -130,7 +130,7 @@ public:
                 ("maps,m", "Create maps")
             ;
 
-            po::options_description hidden("Hidden options");
+            po::options_description hidden{"Hidden options"};
             hidden.add_options()
                 ("input-filenames", po::value<std::vector<std::string>>(), "Input files")
             ;
@@ -154,23 +154,23 @@ public:
                 for (const auto& index_type : index_types) {
                     std::cout << "  " << index_type << "\n";
                 }
-                exit(return_code::okay);
+                std::exit(return_code::okay);
             }
 
             if (vm.count("index")) {
                 m_index_type = vm["index"].as<std::string>();
                 if (index_types.count(m_index_type) == 0) {
                     std::cerr << "Unknown index type: '" << m_index_type << "'\n";
-                    exit(return_code::fatal);
+                    std::exit(return_code::fatal);
                 }
 
                 if (m_index_type.substr(0, 5) == "dense") {
                     m_use_dense_index = true;
                 }
             }
-        } catch (boost::program_options::error& e) {
-            std::cerr << "Error parsing command line: " << e.what() << std::endl;
-            exit(return_code::fatal);
+        } catch (const boost::program_options::error& e) {
+            std::cerr << "Error parsing command line: " << e.what() << '\n';
+            std::exit(return_code::fatal);
         }
     }
 
@@ -201,11 +201,11 @@ public:
 
 template <class TIndex>
 void write_index_file(const std::string& database, const std::string& name, TIndex& index, bool dense) {
-    std::string index_file { index_name(database, name, dense) };
-    int fd = ::open(index_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    const std::string index_file{index_name(database, name, dense)};
+    const int fd = ::open(index_file.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (fd < 0) {
-        std::cerr << "Can't open index file '" << index_file << "': " << strerror(errno) << "\n";
-        exit(return_code::fatal);
+        std::cerr << "Can't open index file '" << index_file << "': " << std::strerror(errno) << "\n";
+        std::exit(return_code::fatal);
     }
 
     if (dense) {
@@ -229,14 +229,14 @@ int main(int argc, char* argv[]) {
     int result = mkdir(options.database().c_str());
 #endif
     if (result == -1) {
-        std::cerr << "Problem creating database directory '" << options.database() << "': " << strerror(errno) << "\n";
-        exit(return_code::fatal);
+        std::cerr << "Problem creating database directory '" << options.database() << "': " << std::strerror(errno) << "\n";
+        std::exit(return_code::fatal);
     }
 
     int data_fd = ::open(options.data_file_name().c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (data_fd < 0) {
-        std::cerr << "Can't open data file '" << options.data_file_name() << "': " << strerror(errno) << "\n";
-        exit(return_code::fatal);
+        std::cerr << "Can't open data file '" << options.data_file_name() << "': " << std::strerror(errno) << "\n";
+        std::exit(return_code::fatal);
     }
 
     const auto& map_factory = osmium::index::MapFactory<osmium::unsigned_object_id_type, size_t>::instance();
@@ -265,7 +265,7 @@ int main(int argc, char* argv[]) {
         location_handler.reset(new location_handler_type(*location_index));
     }
 
-    osmium::handler::DiskStore disk_store_handler(data_fd, *node_index, *way_index, *relation_index);
+    osmium::handler::DiskStore disk_store_handler{data_fd, *node_index, *way_index, *relation_index};
 
     leveldb::DB* db_n2w;
     leveldb::DB* db_n2r;
@@ -290,7 +290,7 @@ int main(int argc, char* argv[]) {
     assert(status.ok());
 
     for (const auto& fn : options.input_filenames()) {
-        osmium::io::Reader reader(fn);
+        osmium::io::Reader reader{fn};
 
         while (osmium::memory::Buffer buffer = reader.read()) {
             disk_store_handler(buffer);

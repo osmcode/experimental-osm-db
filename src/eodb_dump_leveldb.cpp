@@ -47,7 +47,7 @@ public:
         try {
             namespace po = boost::program_options;
 
-            po::options_description desc("Allowed options");
+            po::options_description desc{"Allowed options"};
             desc.add_options()
                 ("help,h", "Print this help message")
                 ("version", "Show version")
@@ -65,22 +65,22 @@ public:
                 std::cout << "Dump index/map data from database.\n\n";
                 std::cout << desc << "\n";
                 std::cout << "Maps: n(ode)2w(ay), n(ode)2r(elation), w(ay)2r(elation), r(elation)2r(elation)\n";
-                exit(return_code::okay);
+                std::exit(return_code::okay);
             }
 
             if (vm.count("map")) {
                 if (map() != "node2way" && map() != "node2relation" && map() != "way2relation" && map() != "relation2relation") {
                     std::cerr << "Map given with --map,-m must be one of: node2way, node2relation, way2relation, relation2relation\n";
-                    exit(return_code::fatal);
+                    std::exit(return_code::fatal);
                 }
             } else {
                 std::cout << "Need --map, -m option\n";
-                exit(return_code::okay);
+                std::exit(return_code::okay);
             }
 
-        } catch (boost::program_options::error& e) {
-            std::cerr << "Error parsing command line: " << e.what() << std::endl;
-            exit(return_code::fatal);
+        } catch (const boost::program_options::error& e) {
+            std::cerr << "Error parsing command line: " << e.what() << '\n';
+            std::exit(return_code::fatal);
         }
     }
 

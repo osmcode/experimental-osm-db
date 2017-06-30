@@ -45,7 +45,7 @@ public:
         } else if (map_type == "stl") {
             m_map.reset(new osmium::index::multimap::SparseMemMultimap<TId, TValue>);
         } else {
-            throw std::runtime_error("unknown map type");
+            throw std::runtime_error{"unknown map type"};
         }
     }
 

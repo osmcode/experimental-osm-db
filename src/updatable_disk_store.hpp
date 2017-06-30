@@ -50,7 +50,7 @@ namespace osmium {
                 struct stat s;
                 int result = ::fstat(m_data_fd, &s);
                 if (result != 0) {
-                    throw std::system_error(errno, std::system_category(), "stat on db file failed");
+                    throw std::system_error{errno, std::system_category(), "stat on db file failed"};
                 }
                 m_offset = s.st_size;
             }

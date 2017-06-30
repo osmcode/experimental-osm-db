@@ -65,7 +65,7 @@ public:
         try {
             namespace po = boost::program_options;
 
-            po::options_description cmdline("Allowed options");
+            po::options_description cmdline{"Allowed options"};
             cmdline.add_options()
                 ("help,h", "Print this help message")
                 ("version", "Show version")
@@ -87,20 +87,20 @@ public:
             if (vm.count("help")) {
                 std::cout << "Usage: eodb_locations_cache XXX\n";
                 std::cout << cmdline << "\n";
-                exit(return_code::okay);
+                std::exit(return_code::okay);
             }
 
             if (vm.count("index-type")) {
                 index_type = vm["index-type"].as<std::string>();
                 if (index_type != "sparse" && index_type != "dense") {
                     std::cerr << "Error: index-type has to be 'sparse' or 'dense'\n";
-                    exit(return_code::fatal);
+                    std::exit(return_code::fatal);
                 }
             }
 
             if (vm.count("create") + vm.count("dump") + vm.count("lookup") > 1) {
                 std::cerr << "Error: Only one of the options -c/--create, -d/--dump, and -l/--lookup allowed\n";
-                exit(return_code::okay);
+                std::exit(return_code::okay);
             }
 
             if (vm.count("create")) {
@@ -114,9 +114,9 @@ public:
                 id = vm["lookup"].as<osmium::unsigned_object_id_type>();
             }
 
-        } catch (boost::program_options::error& e) {
-            std::cerr << "Error parsing command line: " << e.what() << std::endl;
-            exit(return_code::fatal);
+        } catch (const boost::program_options::error& e) {
+            std::cerr << "Error parsing command line: " << e.what() << '\n';
+            std::exit(return_code::fatal);
         }
     }
 
@@ -157,7 +157,7 @@ int detect_index_type() {
 
     if (fd == -1) {
         std::cerr << "Can't find locations cache file\n";
-        exit(return_code::fatal);
+        std::exit(return_code::fatal);
     }
 
     return fd;
@@ -174,9 +174,9 @@ int main(int argc, char* argv[]) {
 
     if (options.operation == operation_type::create) {
         try {
-            MappedFile mf { options.data_file_name() };
+            MappedFile mf{options.data_file_name()};
 
-            osmium::memory::Buffer buffer(mf.data(), mf.size());
+            osmium::memory::Buffer buffer{mf.data(), mf.size()};
 
             const auto& map_factory = osmium::index::MapFactory<osmium::unsigned_object_id_type, osmium::Location>::instance();
             std::unique_ptr<location_index_type> index = map_factory.create_map(index_type_desc());
@@ -187,17 +187,17 @@ int main(int argc, char* argv[]) {
             }
 
             mf.close();
-        } catch (std::system_error& e) {
-            std::cerr << e.what() << "\n";
+        } catch (const std::system_error& e) {
+            std::cerr << e.what() << '\n';
             return return_code::fatal;
         }
     } else if (options.operation == operation_type::dump) {
         if (options.index_type == "sparse") {
             std::cerr << "dump sparse\n";
-            int fd = ::open(options.locations_cache_file_name("sparse").c_str(), O_RDWR);
+            const int fd = ::open(options.locations_cache_file_name("sparse").c_str(), O_RDWR);
             if (fd < 0) {
-                std::cerr << "Can not open locations cache file: " << options.locations_cache_file_name("sparse") << ": " << strerror(errno) << "\n";
-                exit(return_code::fatal);
+                std::cerr << "Can not open locations cache file: " << options.locations_cache_file_name("sparse") << ": " << std::strerror(errno) << "\n";
+                std::exit(return_code::fatal);
             }
             sparse_location_index_type index(fd);
             for (const auto& p : index) {
@@ -208,8 +208,8 @@ int main(int argc, char* argv[]) {
             std::cerr << "dump dense\n";
             int fd = ::open(options.locations_cache_file_name("dense").c_str(), O_RDWR);
             if (fd < 0) {
-                std::cerr << "Can not open locations cache file: " << options.locations_cache_file_name("dense") << ": " << strerror(errno) << "\n";
-                exit(return_code::fatal);
+                std::cerr << "Can not open locations cache file: " << options.locations_cache_file_name("dense") << ": " << std::strerror(errno) << "\n";
+                std::exit(return_code::fatal);
             }
             dense_location_index_type index(fd);
             int i = 0;

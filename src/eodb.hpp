@@ -35,7 +35,7 @@ enum return_code : int {
 #include <string>
 
 inline std::string index_name(const std::string& database, const std::string& index, bool dense) {
-    std::string name = database + "/" + index + ".";
+    std::string name{database + "/" + index + "."};
     name += (dense ? "dense" : "sparse");
     name += ".idx";
     return name;

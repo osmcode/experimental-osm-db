@@ -28,41 +28,41 @@ MappedFile::MappedFile(const std::string& filename) :
 
     m_fd = ::open(filename.c_str(), O_RDWR);
     if (m_fd == -1) {
-        throw std::system_error(errno, std::system_category(),
-            std::string("Opening input file '") + filename + "' failed");
+        throw std::system_error{errno, std::system_category(),
+            std::string{"Opening input file '"} + filename + "' failed"};
     }
 
     struct stat s;
     if (::fstat(m_fd, &s) < 0) {
-        throw std::system_error(errno, std::system_category(),
-            std::string("Getting length of input file '") + filename + "' failed");
+        throw std::system_error{errno, std::system_category(),
+            std::string{"Getting length of input file '"} + filename + "' failed"};
     }
 
     m_size = s.st_size;
 
     m_ptr = ::mmap(nullptr, m_size, PROT_READ, MAP_SHARED, m_fd, 0);
     if (m_ptr == MAP_FAILED) {
-        throw std::system_error(errno, std::system_category(),
-            std::string("Mapping of input file '") + filename + "' failed");
+        throw std::system_error{errno, std::system_category(),
+            std::string{"Mapping of input file '"} + filename + "' failed"};
     }
 }
 
 void MappedFile::close() {
     if (m_ptr && ::munmap(m_ptr, m_size) != 0) {
-        throw std::system_error(errno, std::system_category(),
-            std::string("Closing of input file '") + m_filename + "' failed");
+        throw std::system_error{errno, std::system_category(),
+            std::string{"Closing of input file '"} + m_filename + "' failed"};
     }
 
     if (m_fd != -1 && ::close(m_fd) != 0) {
-        throw std::system_error(errno, std::system_category(),
-            std::string("Closing of input file '") + m_filename + "' failed");
+        throw std::system_error{errno, std::system_category(),
+            std::string{"Closing of input file '"} + m_filename + "' failed"};
     }
 }
 
 MappedFile::~MappedFile() {
     try {
         close();
-    } catch (std::system_error&) {
+    } catch (const std::system_error&) {
         // ignore errors
     }
 }

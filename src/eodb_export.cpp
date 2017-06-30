@@ -46,7 +46,7 @@ public:
         try {
             namespace po = boost::program_options;
 
-            po::options_description desc("Allowed options");
+            po::options_description desc{"Allowed options"};
             desc.add_options()
                 ("help,h", "Print this help message")
                 ("version", "Show version")
@@ -67,16 +67,16 @@ public:
                 std::cout << "Usage: eodb_export [OPTIONS]\n";
                 std::cout << "Export (part of a) database into OSM file.\n\n";
                 std::cout << desc << "\n";
-                exit(return_code::okay);
+                std::exit(return_code::okay);
             }
 
             if (vm.count("output") == 0 && vm.count("output-format") == 0) {
                 std::cerr << "You have to set the output file name with --output,-o or the output format with --output-format,-f\n";
-                exit(return_code::fatal);
+                std::exit(return_code::fatal);
             }
-        } catch (boost::program_options::error& e) {
-            std::cerr << "Error parsing command line: " << e.what() << std::endl;
-            exit(return_code::fatal);
+        } catch (const boost::program_options::error& e) {
+            std::cerr << "Error parsing command line: " << e.what() << '\n';
+            std::exit(return_code::fatal);
         }
     }
 
@@ -111,26 +111,26 @@ int main(int argc, char* argv[]) {
     options.parse(argc, argv);
 
     try {
-        MappedFile mf { options.data_file_name() };
-        osmium::memory::Buffer buffer { mf.data(), mf.size() };
+        MappedFile mf{options.data_file_name()};
+        osmium::memory::Buffer buffer{mf.data(), mf.size()};
 
-        osmium::io::File file(options.output_file_name(), options.output_format());
+        osmium::io::File file{options.output_file_name(), options.output_format()};
         osmium::io::Header header;
         header.set("generator", options.generator());
-        osmium::io::Writer writer(file, header);
+        osmium::io::Writer writer{file, header};
 
         if (options.count() == 0) {
             writer(std::move(buffer));
         } else {
-            osmium::memory::Buffer extract(initial_extract_buffer_size);
+            osmium::memory::Buffer extract{initial_extract_buffer_size};
             std::copy_n(buffer.get_iterator(options.offset()), options.count(), std::back_inserter(extract));
             writer(std::move(extract));
         }
 
         writer.close();
         mf.close();
-    } catch (std::system_error& e) {
-        std::cerr << e.what() << "\n";
+    } catch (const std::system_error& e) {
+        std::cerr << e.what() << '\n';
         return return_code::fatal;
     }
 

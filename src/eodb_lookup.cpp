@@ -48,7 +48,7 @@ public:
         try {
             namespace po = boost::program_options;
 
-            po::options_description cmdline("Allowed options");
+            po::options_description cmdline{"Allowed options"};
             cmdline.add_options()
                 ("help,h", "Print this help message")
                 ("version", "Show version")
@@ -57,7 +57,7 @@ public:
                 ("map,m", po::value<std::string>(), "Name of map")
             ;
 
-            po::options_description hidden("Hidden options");
+            po::options_description hidden{"Hidden options"};
             hidden.add_options()
                 ("ids", po::value<std::vector<osmium::unsigned_object_id_type>>(), "IDs to lookup")
             ;
@@ -79,36 +79,36 @@ public:
                 std::cout << desc << "\n";
                 std::cout << "Indexes: n(odes), w(ays), r(elations), l(ocations)\n";
                 std::cout << "Maps: node2way, node2relation, way2relation, relation2relation\n";
-                exit(return_code::okay);
+                std::exit(return_code::okay);
             }
 
             if (!!vm.count("index") == !!vm.count("map")) {
                 std::cerr << "Please use exactly one of the options --index,-i or --map,-m.\n";
-                exit(return_code::fatal);
+                std::exit(return_code::fatal);
             }
 
             if (vm.count("index")) {
                 if (index() != "nodes" && index() != "ways" && index() != "relations" && index() != "locations") {
                     std::cerr << "Index given with --index,-i must be one of: nodes, ways, relations, locations\n";
-                    exit(return_code::fatal);
+                    std::exit(return_code::fatal);
                 }
             }
 
             if (vm.count("map")) {
                 if (map() != "node2way" && map() != "node2relation" && map() != "way2relation" && map() != "relation2relation") {
                     std::cerr << "Map given with --map,-m must be one of: node2way, node2relation, way2relation, relation2relation\n";
-                    exit(return_code::fatal);
+                    std::exit(return_code::fatal);
                 }
             }
 
             if (vm.count("ids") == 0) {
                 std::cerr << "Need at least one Id to search for on command line\n";
-                exit(return_code::fatal);
+                std::exit(return_code::fatal);
             }
 
-        } catch (boost::program_options::error& e) {
-            std::cerr << "Error parsing command line: " << e.what() << std::endl;
-            exit(return_code::fatal);
+        } catch (const boost::program_options::error& e) {
+            std::cerr << "Error parsing command line: " << e.what() << '\n';
+            std::exit(return_code::fatal);
         }
     }
 
@@ -154,9 +154,9 @@ template <class TIndex>
 bool lookup_id_in_index_dense(const TIndex& index, const osmium::unsigned_object_id_type id) {
     try {
         auto value = index.get(id);
-        std::cout << id << " " << value << std::endl;
+        std::cout << id << " " << value << '\n';
     } catch (...) {
-        std::cout << id << " not found" << std::endl;
+        std::cout << id << " not found\n";
         return false;
     }
 
@@ -173,7 +173,7 @@ bool lookup_id_in_index_sparse(const TIndex& index, const osmium::unsigned_objec
     });
 
     if (positions.first == positions.second) {
-        std::cout << id << " not found" << std::endl;
+        std::cout << id << " not found\n";
         return false;
     }
 
@@ -187,7 +187,7 @@ bool lookup_id_in_index_sparse(const TIndex& index, const osmium::unsigned_objec
 template <class T>
 bool lookup_index_dense(int fd, const std::vector<osmium::unsigned_object_id_type>& ids) {
     typedef typename osmium::index::map::DenseFileArray<osmium::unsigned_object_id_type, T> dense_index_type;
-    dense_index_type index(fd);
+    dense_index_type index{fd};
 
     bool found_all = true;
     for (const auto id : ids) {
@@ -202,7 +202,7 @@ bool lookup_index_dense(int fd, const std::vector<osmium::unsigned_object_id_typ
 template <class T>
 bool lookup_index_sparse(int fd, const std::vector<osmium::unsigned_object_id_type>& ids) {
     typedef typename osmium::index::map::SparseFileArray<osmium::unsigned_object_id_type, T> sparse_index_type;
-    sparse_index_type index(fd);
+    sparse_index_type index{fd};
 
     bool found_all = true;
     for (const auto id : ids) {
@@ -215,7 +215,7 @@ bool lookup_index_sparse(int fd, const std::vector<osmium::unsigned_object_id_ty
 }
 bool lookup_index(const std::string& database, const std::string& index_name, const std::vector<osmium::unsigned_object_id_type>& ids) {
     bool dense = false;
-    std::string filename = database + "/" + index_name + ".sparse.idx";
+    std::string filename{database + "/" + index_name + ".sparse.idx"};
     int fd = ::open(filename.c_str(), O_RDWR);
 
     if (fd == -1) {
@@ -246,8 +246,8 @@ bool lookup_index(const std::string& database, const std::string& index_name, co
 }
 
 bool lookup_map(const std::string& database, const std::string& map_name, const std::vector<osmium::unsigned_object_id_type>& ids) {
-    std::string filename = database + "/" + map_name + ".map";
-    int fd = ::open(filename.c_str(), O_RDWR);
+    std::string filename{database + "/" + map_name + ".map"};
+    const int fd = ::open(filename.c_str(), O_RDWR);
 
     if (fd == -1) {
         std::cerr << "Can't open " << map_name << " map file\n";

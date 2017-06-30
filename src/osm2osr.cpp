@@ -49,7 +49,7 @@ public:
         try {
             namespace po = boost::program_options;
 
-            po::options_description cmdline("Allowed options");
+            po::options_description cmdline{"Allowed options"};
             cmdline.add_options()
                 ("help,h", "Print this help message")
                 ("version", "Show version")
@@ -58,7 +58,7 @@ public:
                 ("append,a", "Append to output file")
             ;
 
-            po::options_description hidden("Hidden options");
+            po::options_description hidden{"Hidden options"};
             hidden.add_options()
                 ("input-filenames", po::value<std::vector<std::string>>(), "Input files")
             ;
@@ -78,22 +78,22 @@ public:
                 std::cout << "Usage: osm2osr [OPTIONS] OSM-FILE...\n";
                 std::cout << "Write OSM data to raw data file.\n\n";
                 std::cout << cmdline << "\n";
-                exit(return_code::okay);
+                std::exit(return_code::okay);
             }
 
             if (vm.count("append") && vm.count("overwrite")) {
                 std::cerr << "Can not use --append,-a and --overwrite,-O together.\n";
-                exit(return_code::fatal);
+                std::exit(return_code::fatal);
             }
 
             if (!vm.count("output")) {
                 std::cerr << "Missing --output option\n";
-                exit(return_code::fatal);
+                std::exit(return_code::fatal);
             }
 
-        } catch (boost::program_options::error& e) {
-            std::cerr << "Error parsing command line: " << e.what() << std::endl;
-            exit(return_code::fatal);
+        } catch (const boost::program_options::error& e) {
+            std::cerr << "Error parsing command line: " << e.what() << '\n';
+            std::exit(return_code::fatal);
         }
     }
 
@@ -126,20 +126,20 @@ int main(int argc, char* argv[]) {
         open_flags |= O_EXCL;
     }
 
-    int data_fd = ::open(options.output_filename().c_str(), open_flags, 0666);
+    const int data_fd = ::open(options.output_filename().c_str(), open_flags, 0666);
     if (data_fd < 0) {
-        std::cerr << "Can't open data file '" << options.output_filename() << "': " << strerror(errno) << "\n";
-        exit(return_code::fatal);
+        std::cerr << "Can't open data file '" << options.output_filename() << "': " << std::strerror(errno) << '\n';
+        std::exit(return_code::fatal);
     }
 
     for (const auto& fn : options.input_filenames()) {
-        osmium::io::Reader reader(fn);
+        osmium::io::Reader reader{fn};
 
         while (osmium::memory::Buffer buffer = reader.read()) {
-            int len = ::write(data_fd, buffer.data(), buffer.committed());
+            const int len = ::write(data_fd, buffer.data(), buffer.committed());
             if (len == -1) {
-                std::cerr << "Write error: " << strerror(errno) << "\n";
-                exit(return_code::fatal);
+                std::cerr << "Write error: " << std::strerror(errno) << '\n';
+                std::exit(return_code::fatal);
             }
         }
 
