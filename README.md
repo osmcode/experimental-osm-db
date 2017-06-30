@@ -84,6 +84,6 @@ This software is released unter the GPL v3. See LICENSE.txt for details.
 
 ## Author
 
-Jochen Topf (http://jochentopf.com/)
+Jochen Topf (https://jochentopf.com/)
 
 
