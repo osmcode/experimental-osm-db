@@ -22,10 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include "eodb.hpp"
+
 // boost
 #include <boost/program_options.hpp>
 
-#include "eodb.hpp"
+#include <iostream>
+#include <string>
+#include <vector>
 
 namespace po = boost::program_options;
 
