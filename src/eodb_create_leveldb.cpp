@@ -61,9 +61,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // eodb
 #include "eodb.hpp"
+#include "offset_index.hpp"
 #include "options.hpp"
 
-typedef osmium::index::map::Map<osmium::unsigned_object_id_type, size_t> offset_index_type;
 typedef osmium::index::map::Map<osmium::unsigned_object_id_type, osmium::Location> location_index_type;
 
 class Options : public OptionsBase {

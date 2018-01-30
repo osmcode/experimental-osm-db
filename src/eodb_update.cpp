@@ -40,46 +40,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // osmium
 #include <osmium/io/any_input.hpp>
 
-// osmium indexes
-#include <osmium/index/map/dense_file_array.hpp>
-#include <osmium/index/map/dummy.hpp>
-#include <osmium/index/map/sparse_file_array.hpp>
-#include <osmium/index/map/sparse_mem_array.hpp>
-#include <osmium/index/map/sparse_mem_map.hpp>
-#include <osmium/index/map/sparse_mem_table.hpp>
-#include <osmium/index/map/sparse_mmap_array.hpp>
-
 // eodb
-#include "eodb.hpp"
-#include "options.hpp"
 #include "any_index.hpp"
+#include "eodb.hpp"
+#include "offset_index.hpp"
+#include "options.hpp"
 #include "updatable_disk_store.hpp"
-
-typedef osmium::index::map::Map<osmium::unsigned_object_id_type, size_t> offset_index_type;
-
-#ifdef OSMIUM_HAS_INDEX_MAP_DENSE_FILE_ARRAY
-    REGISTER_MAP(osmium::unsigned_object_id_type, size_t, osmium::index::map::DenseFileArray, dense_file_array)
-#endif
-
-#ifdef OSMIUM_HAS_INDEX_MAP_SPARSE_FILE_ARRAY
-    REGISTER_MAP(osmium::unsigned_object_id_type, size_t, osmium::index::map::SparseFileArray, sparse_file_array)
-#endif
-
-#ifdef OSMIUM_HAS_INDEX_MAP_SPARSE_MEM_ARRAY
-    REGISTER_MAP(osmium::unsigned_object_id_type, size_t, osmium::index::map::SparseMemArray, sparse_mem_array)
-#endif
-
-#ifdef OSMIUM_HAS_INDEX_MAP_SPARSE_MEM_MAP
-    REGISTER_MAP(osmium::unsigned_object_id_type, size_t, osmium::index::map::SparseMemMap, sparse_mem_map)
-#endif
-
-#ifdef OSMIUM_HAS_INDEX_MAP_SPARSE_MEM_TABLE
-    REGISTER_MAP(osmium::unsigned_object_id_type, size_t, osmium::index::map::SparseMemTable, sparse_mem_table)
-#endif
-
-#ifdef OSMIUM_HAS_INDEX_MAP_SPARSE_MMAP_ARRAY
-    REGISTER_MAP(osmium::unsigned_object_id_type, size_t, osmium::index::map::SparseMmapArray, sparse_mmap_array)
-#endif
 
 class Options : public OptionsBase {
 
