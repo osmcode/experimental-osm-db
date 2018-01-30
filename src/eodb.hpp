@@ -5,7 +5,7 @@
 
 EODB -- An experimental OSM database based on Libosmium.
 
-Copyright (C) 2015-2017  Jochen Topf <jochen@topf.org>
+Copyright (C) 2015-2018  Jochen Topf <jochen@topf.org>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
